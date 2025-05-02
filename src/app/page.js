@@ -1,103 +1,130 @@
+/**
+ * Next.js Task Board - 首頁組件
+ *
+ * 核心功能說明:
+ * 1. Next.js路由系統:
+ *    - app/page.js是Next.js 13+的App Router核心文件
+ *    - 自動映射為網站的根路由'/'
+ *    - 支援巢狀路由，例如app/about/page.js會映射到'/about'
+ *
+ * 2. 渲染策略:
+ *    - 此組件使用'use client'指令標記為客戶端組件
+ *    - 允許使用useState等客戶端特性
+ *    - 如需SEO或快取，可改用伺服器端組件
+ *
+ * 3. 狀態管理架構:
+ *    - 使用React.useState管理本地狀態
+ *    - tasks: 儲存所有任務的陣列
+ *    - newTask: 追蹤輸入框的當前值
+ *
+ * 4. 效能考量:
+ *    - 利用展開運算符來不可變更新狀態
+ *    - 使用Next.js的Image組件自動優化圖片
+ *
+ * 5. 可能的優化項目:
+ *    - 添加錯誤邊界(Error Boundary)處理組件錯誤
+ *    - 實作任務持久化存儲（localStorage或後端API）
+ *    - 添加任務編輯和刪除功能
+ *    - 添加任務狀態（完成/未完成）
+ *    - 實作任務拖拽排序
+ *    - 添加任務分類和篩選功能
+ */
+
+'use client';
+
+// 引入Next.js和React核心功能
 import Image from "next/image";
+import { useState } from "react"; // 引入React的useState hook來管理狀態
+import TaskList from "@/components/TaskList"; // 引入任務列表組件
 
+// 定義首頁組件
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  /**
+   * 狀態管理配置
+   * 使用React的useState Hook管理本地狀態
+   *
+   * @state {tasks} - 陣列，儲存所有任務
+   *   - 初始值為空陣列[]
+   *   - 透過setTasks函數更新
+   *   - 每個任務為字串類型
+   *
+   * @state {newTask} - 字串，追踪輸入框的當前值
+   *   - 初始值為空字串""
+   *   - 透過setNewTask函數更新
+   *   - 在表單提交時重置
+   */
+  const [tasks, setTasks] = useState([]); // 任務列表狀態
+  const [newTask, setNewTask] = useState(""); // 輸入框狀態
+  
+  /**
+   * 添加新任務到列表中
+   *
+   * 執行流程:
+   * 1. 輸入驗證：檢查任務內容是否為空
+   * 2. 狀態更新：使用不可變方式更新tasks陣列
+   * 3. 重置表單：清空輸入框
+   *
+   * @注意事項
+   * - 使用展開運算符[...tasks]來創建新陣列，避免直接修改原狀態
+   * - trim()用於去除輸入的首尾空格
+   * - 可以在這裡整合API調用，實現數據持久化
+   */
+  const addTask = () => {
+    // 輸入驗證
+    if (newTask.trim() === "") {
+      alert("請輸入task");
+      return;
+    }
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+    // 使用不可變更新模式更新狀態
+    const updatedTasks = [...tasks, newTask.trim()];
+    setTasks(updatedTasks);
+    
+    // 重置輸入框狀態
+    setNewTask("");
+    
+    // TODO: 實作後端整合
+    // const response = await fetch('/api/tasks', {
+    //   method: 'POST',
+    //   body: JSON.stringify({ task: newTask })
+    // });
+  };
+
+  /**
+   * 渲染組件UI
+   * 使用TailwindCSS進行樣式設計
+   *
+   * 組件結構:
+   * 1. 標題區域
+   * 2. 任務輸入區域
+   *    - 文字輸入框
+   *    - 添加按鈕
+   * 3. 任務列表區域
+   */
+  return (
+    <main className="p-4">
+      {/* 頁面標題 */}
+      <h1 className="text-2xl font-bold">Task Board</h1>
+      
+      {/* 輸入區域容器 */}
+      <div className="flex gap-2 mb-4">
+        {/* 任務輸入框 */}
+        <input
+          className="border p-2 flex-1"
+          placeholder="Enter a task"
+          value={newTask}
+          onChange={(e) => setNewTask(e.target.value)} // 當輸入值變化時更新newTask狀態
+        />
+        {/* 添加任務按鈕 */}
+        <button
+          className="bg-blue-500 text-white px-4 rounded"
+          onClick={addTask}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          Add
+        </button>
+      </div>
+      {/* 渲染任務列表組件，傳入tasks作為props */}
+      <TaskList tasks={tasks} />
+    </main>
   );
 }
